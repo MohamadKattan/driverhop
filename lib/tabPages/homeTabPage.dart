@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:driverhop/Assistants/assistantMethod.dart';
 import 'package:driverhop/configMap.dart';
 import 'package:driverhop/main.dart';
+import 'package:driverhop/notifications/pushNotifications.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
@@ -27,6 +29,13 @@ class _HomeTabPageState extends State<HomeTabPage> {
   String driverStatusText="Go on line ";
   Color driverStatusColor=Colors.black;
   bool isDriverAvalble = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCurrentDriverInfo();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,4 +150,12 @@ void getLocationLiveUpdate(){
     newGoogleMapController.animateCamera(CameraUpdate.newLatLng(lating));
   });
  }
+
+ // this void for puch notifiction by firebase messaging
+void getCurrentDriverInfo()async{
+    currentFirebaseUser = await FirebaseAuth.instance.currentUser;
+    PushNotifications pushNotifications = PushNotifications();
+    pushNotifications.initialize();
+    pushNotifications.getToken();
+}
 }

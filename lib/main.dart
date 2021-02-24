@@ -25,6 +25,10 @@ void main() async {
 }
 // this rideRequest will use for driver want to be on line for get his geoFire
 DatabaseReference rideRequest = FirebaseDatabase.instance.reference().child("drivers").child(currentFirebaseUser.uid).child("newride");
+// this driversRef for the main drivers collection
+DatabaseReference driversRef = FirebaseDatabase.instance.reference().child("drivers");
+DatabaseReference newrideRequest = FirebaseDatabase.instance.reference().child("riderRequest");
+
 
 class MyApp extends StatelessWidget {
   @override
