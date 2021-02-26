@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:driverhop/Assistants/assistantMethod.dart';
 import 'package:driverhop/configMap.dart';
 import 'package:driverhop/main.dart';
 import 'package:driverhop/notifications/pushNotifications.dart';
@@ -155,7 +154,7 @@ void getLocationLiveUpdate(){
 void getCurrentDriverInfo()async{
     currentFirebaseUser = await FirebaseAuth.instance.currentUser;
     PushNotifications pushNotifications = PushNotifications();
-    pushNotifications.initialize();
+    pushNotifications.initialize(context);
     pushNotifications.getToken();
 }
 }

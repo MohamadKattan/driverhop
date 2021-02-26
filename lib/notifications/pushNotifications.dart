@@ -1,24 +1,28 @@
 import 'dart:io' show Platform;
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:driverhop/configMap.dart';
 import 'package:driverhop/main.dart';
 import 'package:driverhop/modle/rideDetails.dart';
+import 'package:driverhop/notifications/notificationDailog.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 
 class PushNotifications {
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
 
-  Future initialize() async {
+  Future initialize(context) async {
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-      retrievRideRequestInfo(  getRideRequestId(message));
+      retrievRideRequestInfo(  getRideRequestId(message),context);
       },
       onLaunch: (Map<String, dynamic> message) async {
-        retrievRideRequestInfo(  getRideRequestId(message));
+        retrievRideRequestInfo(  getRideRequestId(message),context);
       },
       onResume: (Map<String, dynamic> message) async {
-        retrievRideRequestInfo(  getRideRequestId(message));
+        retrievRideRequestInfo(  getRideRequestId(message),context);
       },
     );
   }
@@ -49,7 +53,11 @@ class PushNotifications {
   }
 
   // this method after got id will receive data from collection:riderRequest
-  void retrievRideRequestInfo(String rideRequestId) {
+  void retrievRideRequestInfo(String rideRequestId,BuildContext context) {
+    assetsAudioPlayer.open(
+      Audio("sounds/Alarm-Fast-A1-www.fesliyanstudios.com.mp3"),
+    );
+    assetsAudioPlayer.play();
     // first recive data from collection
     newrideRequest
         .child(rideRequestId)
@@ -79,6 +87,11 @@ class PushNotifications {
         print("this is information ::");
         print(rideDetails.pickUpName);
         print(rideDetails.dropOffName);
+        showDialog(context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context)=>NotificationDailog(rideDetails:rideDetails)
+
+        );
       }
     });
   }

@@ -27,6 +27,7 @@ void main() async {
 DatabaseReference rideRequest = FirebaseDatabase.instance.reference().child("drivers").child(currentFirebaseUser.uid).child("newride");
 // this driversRef for the main drivers collection
 DatabaseReference driversRef = FirebaseDatabase.instance.reference().child("drivers");
+// this newrideRequest for the rideRequest info collection
 DatabaseReference newrideRequest = FirebaseDatabase.instance.reference().child("riderRequest");
 
 
