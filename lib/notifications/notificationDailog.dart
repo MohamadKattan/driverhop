@@ -1,6 +1,9 @@
 import 'package:driverhop/configMap.dart';
+import 'package:driverhop/main.dart';
 import 'package:driverhop/modle/rideDetails.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class NotificationDailog extends StatelessWidget {
   final RideDetails rideDetails;
@@ -49,7 +52,7 @@ class NotificationDailog extends StatelessWidget {
                   SizedBox(
                     width: 5,
                   ),
-                  Expanded  (
+                  Expanded(
                     child: Container(
                       child: Text(
                         rideDetails.pickUpName,
@@ -109,6 +112,7 @@ class NotificationDailog extends StatelessWidget {
                     FlatButton(
                       onPressed: () {
                         assetsAudioPlayer.stop();
+                        availabletyOfRider(context);
                       },
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18.0),
@@ -128,5 +132,32 @@ class NotificationDailog extends StatelessWidget {
         ]),
       ),
     );
+  }
+
+  // this method to know if any driver accepted rifer request or still waiting
+  void availabletyOfRider(context) {
+    rideRequest.once().then((DataSnapshot dataSnapshot) {
+      Navigator.pop(context);
+      String theRideId = "";
+      if (dataSnapshot.value != null) {
+        // ignore: unnecessary_statements
+        theRideId == dataSnapshot.value.toString();
+      } else {
+        displayTostMessage("rider not exist", context);
+      }
+      if (theRideId == rideDetails.ride_request_id) {
+        rideRequest.set("accepted");
+      } else if (theRideId == "cancelled") {
+        displayTostMessage("rider has canceled", context);
+      } else if (theRideId == "timeout") {
+        displayTostMessage("rider has timeOut", context);
+      } else {
+        displayTostMessage("rider not exist", context);
+      }
+    });
+  }
+
+  displayTostMessage(String message, BuildContext context) {
+    Fluttertoast.showToast(msg: message);
   }
 }

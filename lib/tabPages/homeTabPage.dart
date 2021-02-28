@@ -124,6 +124,7 @@ void makeDriverOnLine()async{
        currentPosition = position;
   Geofire.initialize("availableDrivers");
   Geofire.setLocation(currentFirebaseUser.uid,currentPosition.latitude,currentPosition.longitude);
+  rideRequest.set("searching");//this set when driver available for take new rider
   rideRequest.onValue.listen((event) {
 
   });
