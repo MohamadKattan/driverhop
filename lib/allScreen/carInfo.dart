@@ -88,7 +88,6 @@ class CarInfo extends StatelessWidget {
                   SizedBox(
                     height: 2.0,
                   ),
-
                   SizedBox(
                     height: 9.0,
                   ),
@@ -97,9 +96,9 @@ class CarInfo extends StatelessWidget {
                     textColor: Colors.yellowAccent,
                     child: Container(
                         child: Text(
-                          'Continue register',
-                          style: TextStyle(fontSize: 18.0),
-                        )),
+                      'Continue register',
+                      style: TextStyle(fontSize: 18.0),
+                    )),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24.0)),
                     onPressed: () {
@@ -123,7 +122,7 @@ class CarInfo extends StatelessWidget {
       displayTostMessage('Color Car shouldn\'t be empty', context);
     } else if (carNoController.text.isEmpty) {
       displayTostMessage('car number is required', context);
-    }  else {
+    } else {
       saveCarInfo(context);
     }
   }
@@ -134,10 +133,9 @@ class CarInfo extends StatelessWidget {
     showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context){
+        builder: (context) {
           return ProgssesDailgo(message: 'Loading...');
-        }
-    );
+        });
 
     if (userId != null) {
       Map carInfoDataMap = {

@@ -1,5 +1,4 @@
 import 'dart:io' show Platform;
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:driverhop/configMap.dart';
 import 'package:driverhop/main.dart';
 import 'package:driverhop/modle/rideDetails.dart';
@@ -12,7 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PushNotifications {
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
-
+// this mehtod for intalize firebase messaging
   Future initialize(context) async {
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
@@ -26,7 +25,7 @@ class PushNotifications {
       },
     );
   }
-
+// this method for got token driver and set in collection driver
   Future<String> getToken() async {
     String token = await firebaseMessaging.getToken();
     print("this is token ::");
@@ -41,24 +40,21 @@ class PushNotifications {
   String getRideRequestId(Map<String, dynamic> message) {
     String rideRequestId = "";
     if (Platform.isAndroid) {
-
       rideRequestId = message["data"]["ride_request_id"];
-
     } else {
-
       rideRequestId = message["ride_request_id"];
-
     }
     return rideRequestId;
   }
 
-  // this method after got id will receive data from collection:riderRequest
+  // this method after got id rider will receive data from collection:riderRequest
   void retrievRideRequestInfo(String rideRequestId,BuildContext context) {
-    assetsAudioPlayer.open(
-      Audio("sounds/Alarm-Fast-A1-www.fesliyanstudios.com.mp3"),
-    );
-    assetsAudioPlayer.play();
-    // first recive data from collection
+    // for inclod voice with nonfiction
+    // assetsAudioPlayer.open(
+    //   Audio("sounds/Alarm-Fast-A1-www.fesliyanstudios.com.mp3"),
+    // );
+    // assetsAudioPlayer.play();
+    // first recive data from collection :riderRequest
     newrideRequest
         .child(rideRequestId)
         .once()
@@ -87,6 +83,7 @@ class PushNotifications {
         print("this is information ::");
         print(rideDetails.pickUpName);
         print(rideDetails.dropOffName);
+        // after save data will show to driver NotificationDailog for accept or not
         showDialog(context: context,
           barrierDismissible: false,
           builder: (BuildContext context)=>NotificationDailog(rideDetails:rideDetails)

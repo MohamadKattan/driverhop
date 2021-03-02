@@ -42,7 +42,7 @@ dependencies:
   animated_text_kit: ^3.1.0
   flutter_geofire: ^1.0.3
   firebase_messaging: ^7.0.3
-  assets_audio_player: ^2.0.13+8
+#  assets_audio_player: ^2.0.13+8
 
 dev_dependencies:
   flutter_test:
@@ -62,7 +62,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - images/logoLogIn.png
-    - sounds/Alarm-Fast-A1-www.fesliyanstudios.com.mp3
+#    - sounds/Alarm-Fast-A1-www.fesliyanstudios.com.mp3
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,4 +1,5 @@
-import 'package:driverhop/configMap.dart';
+import 'package:driverhop/Assistants/assistantMethod.dart';
+import 'package:driverhop/allScreen/newRideScreen.dart';
 import 'package:driverhop/main.dart';
 import 'package:driverhop/modle/rideDetails.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -91,7 +92,7 @@ class NotificationDailog extends StatelessWidget {
                   children: [
                     FlatButton(
                       onPressed: () {
-                        assetsAudioPlayer.stop();
+                        // assetsAudioPlayer.stop();
                         Navigator.pop(context);
                       },
                       shape: RoundedRectangleBorder(
@@ -111,7 +112,7 @@ class NotificationDailog extends StatelessWidget {
                     ),
                     FlatButton(
                       onPressed: () {
-                        assetsAudioPlayer.stop();
+                        // assetsAudioPlayer.stop();
                         availabletyOfRider(context);
                       },
                       shape: RoundedRectangleBorder(
@@ -147,6 +148,11 @@ class NotificationDailog extends StatelessWidget {
       }
       if (theRideId == rideDetails.ride_request_id) {
         rideRequest.set("accepted");
+        AssistantMethod.disableHomeTabLiveLocatUpdate();
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => NewRideScreen(rideDetails: rideDetails)));
       } else if (theRideId == "cancelled") {
         displayTostMessage("rider has canceled", context);
       } else if (theRideId == "timeout") {

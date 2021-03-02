@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:driverhop/configMap.dart';
 import 'package:driverhop/main.dart';
+import 'package:driverhop/modle/driver.dart';
 import 'package:driverhop/notifications/pushNotifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
 import 'package:geolocator/geolocator.dart';
@@ -151,9 +153,14 @@ void getLocationLiveUpdate(){
   });
  }
 
- // this void for puch notifiction by firebase messaging
+ // this void for got info driver and  push notification by firebase messaging
 void getCurrentDriverInfo()async{
     currentFirebaseUser = await FirebaseAuth.instance.currentUser;
+    driversRef.child(currentFirebaseUser.uid).once().then((DataSnapshot dataSnapshot){
+      if(dataSnapshot.value!=null){
+       driversInfo = Drivers.fromDataSnapshot(dataSnapshot);
+      }
+    });
     PushNotifications pushNotifications = PushNotifications();
     pushNotifications.initialize(context);
     pushNotifications.getToken();
