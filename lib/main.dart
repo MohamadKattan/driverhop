@@ -39,8 +39,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'driverHop',
-        initialRoute:
-         FirebaseAuth.instance.currentUser == null? LoginScreen.screenId:MainScreen.screenId,
+        initialRoute:LoginScreen.screenId,
+         // FirebaseAuth.instance.currentUser == null? LoginScreen.screenId:MainScreen.screenId,
         routes: {
           RegistrationScreen.screenId: (context) => RegistrationScreen(),
           MainScreen.screenId: (context) => MainScreen(),

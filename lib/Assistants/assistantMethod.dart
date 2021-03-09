@@ -1,17 +1,8 @@
 import 'package:driverhop/Assistants/requestAssistant.dart';
 import 'package:driverhop/configMap.dart';
-import 'package:driverhop/modle/allUsers.dart';
 import 'package:driverhop/modle/directionDetails.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
-// for insta auth and start get current user
-User firebaseUser;
-Users userCurrentInfo;
-Position currentPosition;
-var geolocator = Geolocator();
 
 class AssistantMethod {
 // this method will use here for direction bettwen driver and rider

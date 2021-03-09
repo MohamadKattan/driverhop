@@ -1,6 +1,7 @@
 import 'package:driverhop/allScreen/carInfo.dart';
 import 'package:driverhop/allScreen/logingScreen.dart';
 import 'package:driverhop/configMap.dart';
+import 'package:driverhop/main.dart';
 import 'package:driverhop/widget/progssesDailgo.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -174,9 +175,7 @@ class RegistrationScreen extends StatelessWidget {
         'email': emailTextEditingController.text.trim(),
         'phone': phoneTextEditingController.text.trim(),
       };
-      FirebaseDatabase.instance
-          .reference()
-          .child('drivers')
+      FirebaseDatabase.instance.reference().child("drivers")
           .child(firebaseUser.uid)
           .set(driverDataMap);
       currentFirebaseUser = firebaseUser;

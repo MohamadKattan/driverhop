@@ -137,28 +137,33 @@ class NotificationDailog extends StatelessWidget {
 
   // this method to know if any driver accepted rifer request or still waiting
   void availabletyOfRider(context) {
-    rideRequest.once().then((DataSnapshot dataSnapshot) {
+    rideRequest.once().then((DataSnapshot dataSnapshot)
+    {
       Navigator.pop(context);
-      String theRideId = "";
-      if (dataSnapshot.value != null) {
-        // ignore: unnecessary_statements
-        theRideId == dataSnapshot.value.toString();
-      } else {
-        displayTostMessage("rider not exist", context);
+      String theRideId='';
+      if(dataSnapshot.value != null)
+      {
+        theRideId=dataSnapshot.value.toString();
+      }else
+      {
+        displayTostMessage('Ride not exists', context);
       }
-      if (theRideId == rideDetails.ride_request_id) {
-        rideRequest.set("accepted");
+      if(theRideId== rideDetails.ride_request_id)
+      {
+        rideRequest.set('accepted');
         AssistantMethod.disableHomeTabLiveLocatUpdate();
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => NewRideScreen(rideDetails: rideDetails)));
-      } else if (theRideId == "cancelled") {
-        displayTostMessage("rider has canceled", context);
-      } else if (theRideId == "timeout") {
-        displayTostMessage("rider has timeOut", context);
-      } else {
-        displayTostMessage("rider not exist", context);
+        Navigator.push(context, MaterialPageRoute(builder: (context)=> NewRideScreen(rideDetails:rideDetails)));
+      }else if(theRideId == 'cancelled')
+      {
+        displayTostMessage('Ride has been canceled', context);
+      }
+      else if(theRideId == 'timeOut')
+      {
+        displayTostMessage('Ride has time out', context);
+      }
+      else
+      {
+        displayTostMessage('Ride not exists', context);
       }
     });
   }

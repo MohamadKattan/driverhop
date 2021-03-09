@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_geofire/flutter_geofire.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -19,21 +20,21 @@ class _HomeTabPageState extends State<HomeTabPage> {
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey<ScaffoldState>();
 
   Completer<GoogleMapController> _controllerGoogleMap = Completer();
-  GoogleMapController newGoogleMapController; // when rider want a driver for change map
+  GoogleMapController
+      newGoogleMapController; // when rider want a driver for change map
 
   static final CameraPosition _kGooglePlex = CameraPosition(
       target: LatLng(37.42796133580664, -122.085749655962), zoom: 14.4746);
 
-  Position currentPosition;
+
   var geolocator = Geolocator();
 
-  String driverStatusText="Go on line ";
-  Color driverStatusColor=Colors.black;
+  String driverStatusText = "Go on line ";
+  Color driverStatusColor = Colors.black;
   bool isDriverAvalble = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getCurrentDriverInfo();
   }
@@ -58,52 +59,59 @@ class _HomeTabPageState extends State<HomeTabPage> {
           width: double.infinity,
           color: Colors.black54,
         ),
-       Positioned(top: 60.0,left: 0.0,right: 0.0,child:
-       Row(
-         mainAxisAlignment: MainAxisAlignment.center,
-         children: [
-           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-             child: RaisedButton(
-               onPressed: (){
-                if(isDriverAvalble!=true){
-                  makeDriverOnLine();
-                  getLocationLiveUpdate();
-                  setState(() {
-                    driverStatusColor = Colors.green;
-                    driverStatusText = "On line";
-                    isDriverAvalble=true;
-                  });
-                }else{
-                  makeDriverOffLine();
-                  setState(() {
-                    driverStatusText="Go on line ";
-                     driverStatusColor=Colors.black;
-                     isDriverAvalble = false;
-                  });
-
-                }
-               },
-               color: driverStatusColor,
-               child: Padding(
-               padding: EdgeInsets.all(17.0),
-               child: Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(driverStatusText,style: TextStyle(color: Colors.white,fontSize: 20.0)),
-                  Icon(Icons.phone_android,size: 24.0,color: Colors.white,)
-                ],
-               ),
-               ),
-             ),
-           ),
-         ],
-       )),
-
-
+        Positioned(
+            top: 60.0,
+            left: 0.0,
+            right: 0.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: RaisedButton(
+                    onPressed: () {
+                      if (isDriverAvalble != true) {
+                        makeDriverOnLine();
+                        getLocationLiveUpdate();
+                        setState(() {
+                          driverStatusColor = Colors.green;
+                          driverStatusText = "On line";
+                          isDriverAvalble = true;
+                        });
+                      } else {
+                        makeDriverOffLine();
+                        setState(() {
+                          driverStatusText = "Go on line ";
+                          driverStatusColor = Colors.black;
+                          isDriverAvalble = false;
+                        });
+                      }
+                    },
+                    color: driverStatusColor,
+                    child: Padding(
+                      padding: EdgeInsets.all(17.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(driverStatusText,
+                              style: TextStyle(
+                                  color: Colors.white, fontSize: 20.0)),
+                          Icon(
+                            Icons.phone_android,
+                            size: 24.0,
+                            color: Colors.white,
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )),
       ],
     );
   }
+
   // this method for get current position
   void loctedPostion() async {
     Position position = await Geolocator.getCurrentPosition(
@@ -111,7 +119,7 @@ class _HomeTabPageState extends State<HomeTabPage> {
     currentPosition = position;
     LatLng latLngPosition = LatLng(position.latitude, position.longitude);
     CameraPosition cameraPosition =
-    CameraPosition(target: latLngPosition, zoom: 14.0);
+        CameraPosition(target: latLngPosition, zoom: 14.0);
     newGoogleMapController
         .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
     // String address =
@@ -120,49 +128,59 @@ class _HomeTabPageState extends State<HomeTabPage> {
   }
 
   // this method for got geoFireDriver
-void makeDriverOnLine()async{
-      Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high);
-       currentPosition = position;
-  Geofire.initialize("availableDrivers");
-  Geofire.setLocation(currentFirebaseUser.uid,currentPosition.latitude,currentPosition.longitude);
-  rideRequest.set("searching");//this set when driver available for take new rider
-  rideRequest.onValue.listen((event) {
+  void makeDriverOnLine() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    currentPosition = position;
+    Geofire.initialize("availableDrivers");
+    Geofire.setLocation(currentFirebaseUser.uid, currentPosition.latitude,
+        currentPosition.longitude);
+    try {
+      rideRequest
+          .set("searching"); //this set when driver available for take new rider
+      rideRequest.onValue.listen((event) {});
+    } catch (ex) {
+      print("exx::::"+ ex.toString());
 
-  });
+    }
+  }
 
-
-}
-
-  void makeDriverOffLine(){
+  void makeDriverOffLine() {
     Geofire.removeLocation(currentFirebaseUser.uid);
     rideRequest.onDisconnect();
     rideRequest.remove();
-    rideRequest=null;
+    rideRequest = null;
   }
 
 // method for listing to update live driver Position
-void getLocationLiveUpdate(){
-  homeTabPageStreamSubscription = Geolocator.getPositionStream().listen((Position position) {
-    currentPosition = position;
-    if(isDriverAvalble==true){
-      Geofire.setLocation(currentFirebaseUser.uid, position.latitude, position.longitude);
-    }
-    LatLng lating = LatLng(position.latitude,position.longitude);
-    newGoogleMapController.animateCamera(CameraUpdate.newLatLng(lating));
-  });
- }
+  void getLocationLiveUpdate() {
+    homeTabPageStreamSubscription =
+        Geolocator.getPositionStream().listen((Position position) {
+      currentPosition = position;
+      if (isDriverAvalble == true) {
+        Geofire.setLocation(
+            currentFirebaseUser.uid, position.latitude, position.longitude);
+      } else {
+        Fluttertoast.showToast(msg: "null");
+      }
+      LatLng lating = LatLng(position.latitude, position.longitude);
+      newGoogleMapController.animateCamera(CameraUpdate.newLatLng(lating));
+    });
+  }
 
- // this void for got info driver and  push notification by firebase messaging
-void getCurrentDriverInfo()async{
+  // this void for got info driver and  push notification by firebase messaging
+  void getCurrentDriverInfo() async {
     currentFirebaseUser = await FirebaseAuth.instance.currentUser;
-    driversRef.child(currentFirebaseUser.uid).once().then((DataSnapshot dataSnapshot){
-      if(dataSnapshot.value!=null){
-       driversInfo = Drivers.fromDataSnapshot(dataSnapshot);
+    driversRef
+        .child(currentFirebaseUser.uid)
+        .once()
+        .then((DataSnapshot dataSnapshot) {
+      if (dataSnapshot.value != null) {
+        driversInfo = Drivers.fromDataSnapshot(dataSnapshot);
       }
     });
     PushNotifications pushNotifications = PushNotifications();
     pushNotifications.initialize(context);
     pushNotifications.getToken();
-}
+  }
 }

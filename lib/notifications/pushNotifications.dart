@@ -10,18 +10,27 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 class PushNotifications {
+
   final FirebaseMessaging firebaseMessaging = FirebaseMessaging();
 // this mehtod for intalize firebase messaging
-  Future initialize(context) async {
+  Future initialize(context) async
+  {
     firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
-      retrievRideRequestInfo(  getRideRequestId(message),context);
+
+        retrievRideRequestInfo( getRideRequestId(message),context);
+
       },
+
       onLaunch: (Map<String, dynamic> message) async {
-        retrievRideRequestInfo(  getRideRequestId(message),context);
+        retrievRideRequestInfo(getRideRequestId(message),context);
+
+
       },
       onResume: (Map<String, dynamic> message) async {
-        retrievRideRequestInfo(  getRideRequestId(message),context);
+        retrievRideRequestInfo(getRideRequestId(message),context);
+
+
       },
     );
   }
@@ -31,18 +40,24 @@ class PushNotifications {
     print("this is token ::");
     print(token);
 
-    driversRef.child(currentFirebaseUser.uid).set(token);
+    driversRef.child(currentFirebaseUser.uid).child('token').set(token);
     firebaseMessaging.subscribeToTopic("alldrivers");
     firebaseMessaging.subscribeToTopic("alldusers");
   }
 
   // this method for got ride request id  from data base collection:riderRequest
   String getRideRequestId(Map<String, dynamic> message) {
-    String rideRequestId = "";
-    if (Platform.isAndroid) {
-      rideRequestId = message["data"]["ride_request_id"];
-    } else {
-      rideRequestId = message["ride_request_id"];
+    String rideRequestId ='';
+    if(Platform.isAndroid)
+    {
+      print('this is your ridRequstId:::::::::::::::::::::');
+      rideRequestId= message['data']['ride_request_id'];
+      print(rideRequestId);
+    }else
+    {
+
+      rideRequestId= message['ride_request_id'];
+
     }
     return rideRequestId;
   }
@@ -87,7 +102,6 @@ class PushNotifications {
         showDialog(context: context,
           barrierDismissible: false,
           builder: (BuildContext context)=>NotificationDailog(rideDetails:rideDetails)
-
         );
       }
     });

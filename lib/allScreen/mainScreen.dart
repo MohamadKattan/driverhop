@@ -11,6 +11,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin {
+
   TabController tabController;
   int slectedIndex=0;
   @override

@@ -5,6 +5,7 @@ import 'package:driverhop/configMap.dart';
 import 'package:driverhop/main.dart';
 import 'package:driverhop/modle/rideDetails.dart';
 import 'package:driverhop/widget/progssesDailgo.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,6 +14,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class NewRideScreen extends StatefulWidget {
   final RideDetails rideDetails;
   NewRideScreen({this.rideDetails});
+
+  static final CameraPosition _kGooglePlex = CameraPosition(
+      target: LatLng(37.42796133580664, -122.085749655962), zoom: 14.4746);
 
   @override
   _NewRideScreenState createState() => _NewRideScreenState();
@@ -23,26 +27,24 @@ class _NewRideScreenState extends State<NewRideScreen> {
   GoogleMapController
       newRideGoogleMapController; // when rider want a driver for change map
 
-  static final CameraPosition _kGooglePlex = CameraPosition(
-      target: LatLng(37.42796133580664, -122.085749655962), zoom: 14.4746);
+  // Position currentPosition;
 
-  Position currentPosition;
-  var geolocator = Geolocator();
   var locationOptions =
       LocationOptions(accuracy: LocationAccuracy.bestForNavigation);
   BitmapDescriptor animatMarkersIcon;
-  Set<Marker> markerSet = Set<Marker>();
+  Set <Marker> markerSet = Set<Marker>();
   Set<Circle> circleSet = Set<Circle>();
   Set<Polyline> polylineSet = Set<Polyline>();
   List<LatLng> polylineCorOrdinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   double mapPadding = 0;
   Position myPosition;
+  var geoLocator= Geolocator();
 
   @override
   void initState() {
     super.initState();
-    accptedRideRequest();
+    // accptedRideRequest();
   }
 
   @override
@@ -58,7 +60,7 @@ class _NewRideScreenState extends State<NewRideScreen> {
             markers: markerSet,
             circles: circleSet,
             polylines: polylineSet,
-            initialCameraPosition: _kGooglePlex,
+            initialCameraPosition: NewRideScreen._kGooglePlex,
             onMapCreated: (GoogleMapController controller) async {
               _controllerGoogleMap.complete(controller);
               newRideGoogleMapController = controller;
@@ -66,15 +68,18 @@ class _NewRideScreenState extends State<NewRideScreen> {
               setState(() {
                 mapPadding = 265.0;
               });
+
               //driver
               var currentLatLing =
                   LatLng(currentPosition.latitude, currentPosition.longitude);
               //ride
               var pickUpLatLing = widget.rideDetails.pickUp;
 
-              await getPlaceDirection(currentLatLing, pickUpLatLing);
 
-              getRideLocationLiveUpdate();
+
+            await getPlaceDirection(currentLatLing, pickUpLatLing);
+
+              // getRideLocationLiveUpdate();
             },
           ),
           Positioned(
@@ -96,7 +101,7 @@ class _NewRideScreenState extends State<NewRideScreen> {
                         offset: Offset(0.7, 0.7))
                   ]),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 18.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -105,12 +110,12 @@ class _NewRideScreenState extends State<NewRideScreen> {
                       style: TextStyle(color: Colors.black, fontSize: 14.0),
                     ),
                     SizedBox(
-                      height: 6.0,
+                      height: 12.0,
                     ),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Text("Mohamad"),
+                        Text("${widget.rideDetails.riderName}".toString()),
                         Padding(
                           padding: EdgeInsets.only(right: 10.0),
                         ),
@@ -118,7 +123,7 @@ class _NewRideScreenState extends State<NewRideScreen> {
                       ],
                     ),
                     SizedBox(
-                      height: 6.0,
+                      height: 12.0,
                     ),
                     Row(
                       children: [
@@ -126,13 +131,13 @@ class _NewRideScreenState extends State<NewRideScreen> {
                         Expanded(
                             child: Container(
                                 child: Text(
-                          "Street PickUp",
+                         " from : ${ widget.rideDetails.pickUpName}".toString(),
                           overflow: TextOverflow.ellipsis,
                         ))),
                       ],
                     ),
                     SizedBox(
-                      height: 6.0,
+                      height: 12.0,
                     ),
                     Row(
                       children: [
@@ -140,13 +145,13 @@ class _NewRideScreenState extends State<NewRideScreen> {
                         Expanded(
                             child: Container(
                                 child: Text(
-                          "Street DROPoFF",
+                                  "to :  ${ widget.rideDetails.dropOffName}".toString(),
                           overflow: TextOverflow.ellipsis,
                         ))),
                       ],
                     ),
                     SizedBox(
-                      height: 15.0,
+                      height: 20.0,
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -180,9 +185,23 @@ class _NewRideScreenState extends State<NewRideScreen> {
     );
   }
 
+
+  void loctedPostion() async {
+
+    LatLng latLngPosition = LatLng(currentPosition.latitude, currentPosition.longitude);
+    CameraPosition cameraPosition =
+    CameraPosition(target: latLngPosition, zoom: 14.0);
+    newRideGoogleMapController
+        .animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    // String address =
+    // await AssistantMethod.searchCoordinateAddress(position, context);
+    // print(address);
+  }
+
+
   // this method for got current + drop off location by (Direction Api) . step 2 for starting drawing line between two address
-  Future<void> getPlaceDirection(
-      LatLng pickUpLating, LatLng dropOffLating) async {
+  Future<void> getPlaceDirection(LatLng pickUpLating,LatLng dropOffLating)async{
+
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -190,13 +209,13 @@ class _NewRideScreenState extends State<NewRideScreen> {
             message: "Please wait",
           );
         });
-    var details = await AssistantMethod.obtainPlaceDirctionDiatels(
-        pickUpLating, dropOffLating);
+    var details = await AssistantMethod.obtainPlaceDirctionDiatels(pickUpLating, dropOffLating);
 
     Navigator.pop(context);
     print("getPlaceDirection::");
     print(details.encodedPoints);
     // for line on mape
+    PolylinePoints polylinePoints = PolylinePoints();
     List<PointLatLng> pointLatLngResult =
         polylinePoints.decodePolyline(details.encodedPoints);
     polylineCorOrdinates.clear();
@@ -209,8 +228,8 @@ class _NewRideScreenState extends State<NewRideScreen> {
     polylineSet.clear();
     setState(() {
       Polyline polyline = Polyline(
-        polylineId: PolylineId("polylineId"),
         color: Colors.red,
+        polylineId: PolylineId("polylineId"),
         points: polylineCorOrdinates,
         width: 5,
         startCap: Cap.roundCap,
@@ -218,6 +237,28 @@ class _NewRideScreenState extends State<NewRideScreen> {
         geodesic: true,
       );
       polylineSet.add(polyline);
+      // control by site for both pickup and dropdown
+      LatLngBounds latLngBounds;
+      if (pickUpLating.latitude > dropOffLating.latitude &&
+          pickUpLating.longitude > dropOffLating.longitude) {
+        latLngBounds =
+            LatLngBounds(southwest: dropOffLating, northeast: pickUpLating);
+      } else if (pickUpLating.latitude > dropOffLating.latitude) {
+        latLngBounds = LatLngBounds(
+          southwest: LatLng(dropOffLating.latitude, pickUpLating.longitude),
+          northeast: LatLng(pickUpLating.latitude, dropOffLating.longitude),
+        );
+      } else if (pickUpLating.longitude > dropOffLating.longitude) {
+        latLngBounds = LatLngBounds(
+          southwest: LatLng(pickUpLating.latitude, dropOffLating.longitude),
+          northeast: LatLng(dropOffLating.latitude, pickUpLating.longitude),
+        );
+      } else {
+        latLngBounds =
+            LatLngBounds(southwest: pickUpLating, northeast: dropOffLating);
+      }
+      newRideGoogleMapController
+          .animateCamera(CameraUpdate.newLatLngBounds(latLngBounds, 70));
     });
     Marker pickUpLocationMarker = Marker(
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow),

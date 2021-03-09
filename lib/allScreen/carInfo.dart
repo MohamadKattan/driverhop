@@ -1,6 +1,7 @@
 import 'package:driverhop/allScreen/mainScreen.dart';
 import 'package:driverhop/allScreen/registeration.dart';
 import 'package:driverhop/configMap.dart';
+import 'package:driverhop/main.dart';
 import 'package:driverhop/modle/allUsers.dart';
 import 'package:driverhop/widget/progssesDailgo.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -145,13 +146,12 @@ class CarInfo extends StatelessWidget {
       };
       FirebaseDatabase.instance
           .reference()
-          .child('drivers')
+          .child("drivers")
           .child(userId)
           .child("carInfo")
           .set(carInfoDataMap);
       displayTostMessage('Welcome', context);
-      Navigator.pushNamedAndRemoveUntil(
-          context, MainScreen.screenId, (route) => false);
+      Navigator.push(context,  MaterialPageRoute(builder: (context)=>MainScreen()));
     } else {
       Navigator.pop(context);
       displayTostMessage('some thing went wrong try again', context);
