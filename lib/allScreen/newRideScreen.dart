@@ -329,7 +329,7 @@ class _NewRideScreenState extends State<NewRideScreen> {
       myPosition = position;
       LatLng mPostion = LatLng(position.latitude, position.longitude);
 
-   // using map_toolKit for update location from point to another when rider move
+   // using map_toolKit for update location from point to another when driver move
       var rot = MapKitAssistant.getMarkerLocation(oldPos.latitude,
           oldPos.longitude, mPostion.latitude, mPostion.longitude);
 //*****************************************************************************

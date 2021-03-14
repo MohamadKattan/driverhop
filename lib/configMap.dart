@@ -3,7 +3,7 @@ import 'package:driverhop/modle/driver.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
 
-String mapKey = 'AIzaSyAMEfNY_DfMea_xBnCLhHWXYR8efpbe0eE';
+String mapKey = 'key';
 
 User currentFirebaseUser; // for  get current user from (User firebaseUser;)
 
