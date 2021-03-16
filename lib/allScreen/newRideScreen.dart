@@ -5,7 +5,9 @@ import 'package:driverhop/Assistants/mapKitAssistants.dart';
 import 'package:driverhop/configMap.dart';
 import 'package:driverhop/main.dart';
 import 'package:driverhop/modle/rideDetails.dart';
+import 'package:driverhop/widget/collectFareDailog.dart';
 import 'package:driverhop/widget/progssesDailgo.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -44,6 +46,10 @@ class _NewRideScreenState extends State<NewRideScreen> {
   String durationRide = '';
   bool isRequestingDirection =
       false; //will use for don't call this method  updateRideDetails always
+  String btnTitle = 'Arrived';
+  Color btnColor = Colors.blueAccent;
+  Timer timer;
+  int durationCounter = 0;
 
   @override
   void initState() {
@@ -108,7 +114,7 @@ class _NewRideScreenState extends State<NewRideScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                     durationRide,
+                      durationRide,
                       style: TextStyle(color: Colors.black, fontSize: 14.0),
                     ),
                     SizedBox(
@@ -158,14 +164,53 @@ class _NewRideScreenState extends State<NewRideScreen> {
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.0),
                       child: RaisedButton(
-                        onPressed: () {},
-                        color: Colors.yellowAccent[700],
+                        onPressed: () async {
+                          if (status == 'accepted') {
+                            status = 'arrived';
+                            String rideRequestId =
+                                widget.rideDetails.ride_request_id;
+                            newrideRequest
+                                .child(rideRequestId)
+                                .child('status')
+                                .set(status);
+                            setState(() {
+                              btnTitle = 'Start trip';
+                              btnColor = Colors.yellowAccent;
+                            });
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) =>
+                                    ProgssesDailgo(
+                                      message: 'Please wait...',
+                                    ));
+                            await getPlaceDirection(widget.rideDetails.pickUp,
+                                widget.rideDetails.dropOff);
+                            Navigator.pop(context);
+                          } else if (status == 'arrived') {
+                            status = 'onRide';
+                            String rideRequestId =
+                                widget.rideDetails.ride_request_id;
+                            newrideRequest
+                                .child(rideRequestId)
+                                .child('status')
+                                .set(status);
+                            setState(() {
+                              btnTitle = 'End trip';
+                              btnColor = Colors.redAccent[700];
+                            });
+                            initTimer();
+                          } else if (status == 'onRide') {
+                            endTheTrip();
+                          }
+                        },
+                        color: btnColor,
                         padding: EdgeInsets.all(17.0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "Arrived",
+                              btnTitle,
                               style: TextStyle(
                                   color: Colors.black, fontSize: 20.0),
                             ),
@@ -187,7 +232,7 @@ class _NewRideScreenState extends State<NewRideScreen> {
     );
   }
 
-//rider
+//driver
   void loctedPostion() async {
     LatLng latLngPosition =
         LatLng(currentPosition.latitude, currentPosition.longitude);
@@ -200,9 +245,8 @@ class _NewRideScreenState extends State<NewRideScreen> {
     // print(address);
   }
 
-  // this method for got current + drop off location by (Direction Api) . step 2 for starting drawing line between two address
-  Future<void> getPlaceDirection(
-      LatLng pickUpLating, LatLng dropOffLating) async {
+  // this method for polyline and direction
+  Future<void> getPlaceDirection(LatLng pickUpLating, LatLng dropOffLating) async {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -316,11 +360,11 @@ class _NewRideScreenState extends State<NewRideScreen> {
       "longitude": currentPosition.longitude.toString(),
     };
     newrideRequest.child(rideRequestId).child("driver_location").set(locMap);
+    driversRef.child(currentFirebaseUser.uid).child('history').child(rideRequestId).set(true);
   }
 
-  // method for listing to update live ride Position+driver includ trip details
+  // method for listing to update live driver includ trip details
   void getRideLocationLiveUpdate() {
-    //rider
     LatLng oldPos = LatLng(0, 0);
     // driver
     rideStreamSubscription =
@@ -329,7 +373,7 @@ class _NewRideScreenState extends State<NewRideScreen> {
       myPosition = position;
       LatLng mPostion = LatLng(position.latitude, position.longitude);
 
-   // using map_toolKit for update location from point to another when driver move
+      // using map_toolKit for update location from point to another when driver move
       var rot = MapKitAssistant.getMarkerLocation(oldPos.latitude,
           oldPos.longitude, mPostion.latitude, mPostion.longitude);
 //*****************************************************************************
@@ -359,7 +403,7 @@ class _NewRideScreenState extends State<NewRideScreen> {
         'latitude': currentPosition.latitude.toString(),
         'longitude': currentPosition.longitude.toString(),
       };
-      newrideRequest.child(rideRequestId).child('driverLocation').set(locMap);
+      newrideRequest.child(rideRequestId).child('driver_location').set(locMap);
     });
   }
 
@@ -388,5 +432,74 @@ class _NewRideScreenState extends State<NewRideScreen> {
       }
       isRequestingDirection = false;
     }
+  }
+
+  // this method for count time trip
+  void initTimer() {
+    const interval = Duration(seconds: 1);
+    timer = Timer.periodic(interval, (timer) {
+      durationCounter = durationCounter + 1;
+    });
+  }
+// for end trip and save earn
+  endTheTrip() async {
+    timer.cancel();
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => ProgssesDailgo(
+              message: 'Please wait...',
+            ));
+
+    var currentLatlng = LatLng(myPosition.latitude, myPosition.longitude);
+    var directionalDetails = await AssistantMethod.obtainPlaceDirctionDiatels(
+        widget.rideDetails.pickUp, currentLatlng);
+    Navigator.pop(context);
+    int fareAmount = AssistantMethod.calcuttaFares(directionalDetails);
+
+    String rideRequestId = widget.rideDetails.ride_request_id;
+    newrideRequest
+        .child(rideRequestId)
+        .child('fares')
+        .set(fareAmount.toString());
+    newrideRequest.child(rideRequestId).child('status').set('ended');
+    rideStreamSubscription.cancel();
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => CollectFareDialog(
+              paymentMethod: widget.rideDetails.payment_method,
+              fareAmount: fareAmount,
+            ));
+    saveEarnings(fareAmount);
+  }
+
+// this method for save money all totle
+  void saveEarnings(int fareAmount) {
+    //get old money what driver earning till last trip
+    driversRef
+        .child(currentFirebaseUser.uid)
+        .child('earnings')
+        .once()
+        .then((DataSnapshot dataSnapShot) {
+      if (dataSnapShot.value != null) {
+        double oldEarning = double.parse(dataSnapShot.value.toString());
+        //count old earning with last trip earn
+        double totalEarning = fareAmount + oldEarning;
+        driversRef
+            .child(currentFirebaseUser.uid)
+            .child('earnings')
+            .set(totalEarning.toStringAsFixed(2));
+      } else {
+        // if no found old just set new earn
+        double totalEarning = fareAmount.toDouble();
+        driversRef
+            .child(currentFirebaseUser.uid)
+            .child('earnings')
+            .set(totalEarning.toStringAsFixed(2));
+      }
+    });
   }
 }
